@@ -29,11 +29,13 @@ class Detect(Module, common.Filters, common.PackageManager, common.IntentFilter)
 
         shell = self.new("com.mwr.jdiesel.util.Shell")
         shell.write("su\n") # added 20160612
+        """
         shell.write("logcat ContextImplcheckPermission:E IntentExtra:E AndroidRuntime:E *:S")
         shell.write("logcat -d")#20160607
         shell.write("logcat -c")#20160612
         logs = read_shell(shell, 1)
         #self.stdout.write("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!logs before detecting is...\n%s\n" % logs)
+        """
 
         if arguments.package != None:
             package = self.packageManager().getPackageInfo(arguments.package, PackageManager.GET_ACTIVITIES)
@@ -52,7 +54,10 @@ class Detect(Module, common.Filters, common.PackageManager, common.IntentFilter)
                 time.sleep(1)
                 # Serializable added 20151113 
                 start_components = self.new("com.mwr.dz.apksec.StartComponents")
-                start_components.startcomponent(arguments.package, activity.name, START_ACTIVITY, self.getContext())
+                try:
+                    start_components.startcomponent(arguments.package, activity.name, START_ACTIVITY, self.getContext())
+                except Exception as e:
+                    pass
 
                 shell.write("logcat -d")#20160607
                 logs = read_shell(shell, 1)
