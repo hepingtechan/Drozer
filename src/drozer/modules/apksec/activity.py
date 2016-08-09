@@ -14,7 +14,7 @@ class Detect(Module, common.Filters, common.PackageManager, common.IntentFilter)
     name = "Detect Activity Security Hole"
     description = "Detect the activites, find the security holes"
     examples = "run apksec.activity.detect -a com.mwr.example.sieve"
-    date = "2015-10-23"
+    date = "2016-08-08"
     author = "Xiaofang Huang"
     licence = "MWR Code Licence"
     path = ["apksec", "activity"]
@@ -22,6 +22,7 @@ class Detect(Module, common.Filters, common.PackageManager, common.IntentFilter)
 
     def add_arguments(self, parser):
         parser.add_argument("-a", "--package", default = None, help = "specify the package to inspect")
+        parser.add_argument("-c", "--component", default = None, help = "specify the component to inspect")
 
     def execute(self, arguments):
         reload(sys)
@@ -36,41 +37,30 @@ class Detect(Module, common.Filters, common.PackageManager, common.IntentFilter)
         logs = read_shell(shell, 1)
         #self.stdout.write("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!logs before detecting is...\n%s\n" % logs)
         """
-
-        if arguments.package != None:
-            package = self.packageManager().getPackageInfo(arguments.package, PackageManager.GET_ACTIVITIES)
-            activites = self.__get_activities(package)
-
+        if arguments.package != None and arguments.component != None:
             self.stdout.write("activity detecting starts...\n")
             activity_detect_result = {}#20160317
-            count = 0
-            for activity in activites:
-                shell.write("logcat ContextImplcheckPermission:E IntentExtra:E AndroidRuntime:E *:S")#20160607
-                logs = read_shell(shell, 1)#20160607
+            shell.write("logcat ContextImplcheckPermission:E IntentExtra:E AndroidRuntime:E *:S")#20160607
+            logs = read_shell(shell, 1)#20160607
 
-                count = count + 1
-                self.stdout.write("  No.%d: %s\n" % (count, activity.name))
+            time.sleep(1)
+            # Serializable added 20151113
+            start_components = self.new("com.mwr.dz.apksec.StartComponents")
+            try:
+                start_components.startcomponent(arguments.package, arguments.component, START_ACTIVITY, self.getContext())
+            except Exception as e:
+                pass
 
-                time.sleep(1)
-                # Serializable added 20151113 
-                start_components = self.new("com.mwr.dz.apksec.StartComponents")
-                try:
-                    start_components.startcomponent(arguments.package, activity.name, START_ACTIVITY, self.getContext())
-                except Exception as e:
-                    pass
+            shell.write("logcat -d")#20160607
+            logs = read_shell(shell, 1)
+            logs = cutoff_system_print(logs)
 
-                shell.write("logcat -d")#20160607
-                logs = read_shell(shell, 1)
-                logs = cutoff_system_print(logs)
-                activity_detect_result[activity.name] = logs#20160317
-                self.stdout.write("++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (activity.name, logs))
+            if logs != '':
+                self.stdout.write("++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (arguments.component, logs))
                 self.stdout.flush() #added 20151116
                 shell.write("logcat -c")#20160612
-                
-            #20160317    
-            activity_detect_result = str(activity_detect_result)
-            #self.stdout.write(activity_detect_result)
-                
+
+
         else:
             self.stdout.write("package could not be None!\n")
 
