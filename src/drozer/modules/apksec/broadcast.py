@@ -41,29 +41,39 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
             count = 0
             broadcast_detect_result = {} #20160317
             self.stdout.write("broadcast detecting starts...\n")
-            
-            for receiver in receivers:
-		shell.write("logcat ContextImplcheckPermission:E IntentExtra:E AndroidRuntime:E *:S")
-		logs = read_shell(shell, 1)
-				
-                count = count + 1
-                self.stdout.write("  No.%d: %s\n" % (count, receiver.name))
 
-                time.sleep(1)
-                # Serializable added 20151113
-                start_components = self.new("com.mwr.dz.apksec.StartComponents")
-                try:
-                    start_components.startcomponent(arguments.package, receiver.name, SEND_BROADCAST, self.getContext())
-                except Exception as e:
-                    pass
+            current_dir = os.getcwd()
+            os.chdir('detect_result')
+            with open(arguments.package+'_broacast.txt', 'w') as output_file:
+                output_file.write('Total BroadcastReceivers:\n%d\n' % len(receivers))
+                os.chdir(current_dir)
+                for receiver in receivers:
+		    shell.write("logcat ContextImplcheckPermission:E IntentExtra:E AndroidRuntime:E *:S")
+		    logs = read_shell(shell, 1)
 
-		shell.write("logcat -d")
-                logs = read_shell(shell, 1)
-                logs = cutoff_system_print(logs)
-                broadcast_detect_result[receiver.name] = logs #20160317
-                self.stdout.write("++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (receiver.name, logs))
-                self.stdout.flush()
-                shell.write("logcat -c")
+                    time.sleep(1)
+                    # Serializable added 20151113
+                    start_components = self.new("com.mwr.dz.apksec.StartComponents")
+                    try:
+                        start_components.startcomponent(arguments.package, receiver.name, SEND_BROADCAST, self.getContext())
+                    except Exception as e:
+                        pass
+
+		    shell.write("logcat -d")
+                    logs = read_shell(shell, 1)
+                    logs = cutoff_system_print(logs)
+                    broadcast_detect_result[receiver.name] = logs #20160317
+
+                    if logs != '':
+                        count = count + 1
+                        self.stdout.write("  No.%d: %s\n" % (count, receiver.name))
+                        output_file.write("  No.%d: %s\n" % (count, receiver.name))
+                        self.stdout.write("++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (receiver.name, logs))
+                        output_file.write("++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (receiver.name, logs))
+                    self.stdout.flush()
+                    shell.write("logcat -c")
+
+                output_file.write('Total Security Holes:\n%d\n' % count)
             
             #20160317    
             broadcast_detect_result = str(broadcast_detect_result)
