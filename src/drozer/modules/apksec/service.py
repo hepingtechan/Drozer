@@ -43,14 +43,15 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
             service_detect_result = {} #20160317
             self.stdout.write("service detecting starts...\n")
 
-            current_dir = os.getcwd()
-            os.chdir('detect_result')
-            with open(arguments.package+'_service.txt', 'w') as output_file:
+            #current_dir = os.getcwd()
+            #os.chdir('detect_result')
+            #with open(arguments.package+'_service.txt', 'w') as output_file, open(arguments.package+'_service_pure.txt', 'w') as output_pure_file:
+            with open('./detect_result/'+arguments.package+'_service.txt', 'w') as output_file, open('./detect_result_pure/'+arguments.package+'_service_pure.txt', 'w') as output_pure_file:
                 output_file.write('Total Services:\n%d\n' % len(services))
-                os.chdir(current_dir)
+                #os.chdir(current_dir)
                 for service in services:
                     shell.write("logcat ContextImplcheckPermission:E IntentExtra:E AndroidRuntime:E *:S")
-                    logs = read_shell(shell, 1)        
+                    logs = read_shell(shell, 1)
 
                     time.sleep(1)
                     # Serializable added 20151113
@@ -68,18 +69,18 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
                         count = count + 1
                         self.stdout.write("  service No.%d: %s\n" % (count, service.name))
                         output_file.write("  service No.%d: %s\n" % (count, service.name))
-
+                        output_pure_file.write(service.name)
                         self.stdout.write("+++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (service.name, logs))
                         output_file.write("+++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (service.name, logs))
                     self.stdout.flush()
                     shell.write("logcat -c")
 
                 output_file.write('Total Security Holes:\n%d\n' % count)
-                
+
             #20160317
             service_detect_result = str(service_detect_result)
             #self.stdout.write(service_detect_result)
-                
+
         else:
             self.stdout.write("package could not be None\n'")
 

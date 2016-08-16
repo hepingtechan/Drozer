@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 #coding:utf8
 import sys, os
-import string
 
 def analysis_detect_result(detect_result_path):
     filenames = os.listdir(detect_result_path)
     filenames.sort()
-    print 'filenames: %s\n' % str(filenames)
-    components = ['Activity', 'BroadcastReceiver', 'Service']
+    #print 'filenames: %s\n' % str(filenames)
+    #components = ['Activity', 'BroadcastReceiver', 'Service']
 
     count = 0
     with open('detect_result_consolidation.txt', 'w') as file_detect_result:

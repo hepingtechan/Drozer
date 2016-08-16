@@ -42,11 +42,12 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
             broadcast_detect_result = {} #20160317
             self.stdout.write("broadcast detecting starts...\n")
 
-            current_dir = os.getcwd()
-            os.chdir('detect_result')
-            with open(arguments.package+'_broacast.txt', 'w') as output_file:
+            #current_dir = os.getcwd()
+            #os.chdir('detect_result')
+            #with open(arguments.package+'_broadcast.txt', 'w') as output_file, open('../detect_result_pure/'+arguments.package+'_broadcast_pure.txt', 'w') as output_pure_file:
+            with open('./detect_result/'+arguments.package+'_broadcast.txt', 'w') as output_file, open('./detect_result_pure/'+arguments.package+'_broadcast_pure.txt', 'w') as output_pure_file:
                 output_file.write('Total BroadcastReceivers:\n%d\n' % len(receivers))
-                os.chdir(current_dir)
+                #os.chdir(current_dir)
                 for receiver in receivers:
 		    shell.write("logcat ContextImplcheckPermission:E IntentExtra:E AndroidRuntime:E *:S")
 		    logs = read_shell(shell, 1)
@@ -68,17 +69,18 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
                         count = count + 1
                         self.stdout.write("  No.%d: %s\n" % (count, receiver.name))
                         output_file.write("  No.%d: %s\n" % (count, receiver.name))
+                        output_pure_file.write(receiver.name+'\n')
                         self.stdout.write("++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (receiver.name, logs))
                         output_file.write("++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (receiver.name, logs))
                     self.stdout.flush()
                     shell.write("logcat -c")
 
                 output_file.write('Total Security Holes:\n%d\n' % count)
-            
-            #20160317    
+
+            #20160317
             broadcast_detect_result = str(broadcast_detect_result)
             #self.stdout.write(broadcast_detect_result)
-                
+
         else:
             self.stdout.write("package could not be None\n'")
 

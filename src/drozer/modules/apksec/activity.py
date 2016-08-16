@@ -44,18 +44,19 @@ class Detect(Module, common.Filters, common.PackageManager, common.IntentFilter)
             self.stdout.write("activity detecting starts...\n")
             activity_detect_result = {}#20160317
             count = 0
-            current_dir = os.getcwd()
+            #current_dir = os.getcwd()
             #print 'current_dir : %s\n' % current_dir
-            os.chdir('detect_result')
-            with open(arguments.package+'_activity.txt', 'w') as output_file:
+            #os.chdir('detect_result')
+            #with open(arguments.package+'_activity.txt', 'w') as output_file, open('../detect_result_pure/'+arguments.package+'_activity_pure.txt', 'w') as output_pure_file:
+            with open('./detect_result/'+arguments.package+'_activity.txt', 'w') as output_file, open('./detect_result_pure/'+arguments.package+'_activity_pure.txt', 'w') as output_pure_file:
                 output_file.write('Total Activities:\n%d\n' % len(activities))
-                os.chdir(current_dir)
+                #os.chdir(current_dir)
                 for activity in activities:
                     shell.write("logcat ContextImplcheckPermission:E IntentExtra:E AndroidRuntime:E *:S")#20160607
                     logs = read_shell(shell, 1)#20160607
 
                     time.sleep(1)
-                    # Serializable added 20151113 
+                    # Serializable added 20151113
                     start_components = self.new("com.mwr.dz.apksec.StartComponents")
                     try:
                         start_components.startcomponent(arguments.package, activity.name, START_ACTIVITY, self.getContext())
@@ -71,17 +72,18 @@ class Detect(Module, common.Filters, common.PackageManager, common.IntentFilter)
                         count = count + 1
                         self.stdout.write("  No.%d: %s\n" % (count, activity.name))
                         output_file.write("  No.%d: %s\n" % (count, activity.name))
+                        output_pure_file.write(activity.name+'\n')
                         self.stdout.write("++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (activity.name, logs))
                         output_file.write('++ Logs of %s ++\n%s\n' % (activity.name, logs))
                     self.stdout.flush() #added 20151116
                     shell.write("logcat -c")#20160612
 
                 output_file.write('Total Security Holes:\n%d\n' % count)
-                
-            #20160317    
+
+            #20160317
             activity_detect_result = str(activity_detect_result)
             #self.stdout.write(activity_detect_result)
-                
+
         else:
             self.stdout.write("package could not be None!\n")
 
