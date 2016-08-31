@@ -42,33 +42,37 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
             count = 0
             service_detect_result = {} #20160317
             self.stdout.write("service detecting starts...\n")
-            for service in services:
-                shell.write("logcat ContextImplcheckPermission:E IntentExtra:E AndroidRuntime:E *:S")
-                logs = read_shell(shell, 1)        
+            with open('detect_result/'+arguments.package+'_service.txt', 'w') as file_detect_result:
+                for service in services:
+                    shell.write("logcat ContextImplcheckPermission:E IntentExtra:E AndroidRuntime:E *:S")
+                    logs = read_shell(shell, 1)
 
-                count = count + 1
-                self.stdout.write("  service No.%d: %s\n" % (count, service.name))
+                    count = count + 1
+                    self.stdout.write("  service No.%d: %s\n" % (count, service.name))
 
-                time.sleep(1)
-                # Serializable added 20151113
-                start_components = self.new("com.mwr.dz.apksec.StartComponents")
-                try:
-                    start_components.startcomponent(arguments.package, service.name, START_SERVICE, self.getContext())
-                except Exception as e:
-                    pass
+                    time.sleep(1)
+                    # Serializable added 20151113
+                    start_components = self.new("com.mwr.dz.apksec.StartComponents")
+                    try:
+                        start_components.startcomponent(arguments.package, service.name, START_SERVICE, self.getContext())
+                    except Exception as e:
+                        pass
 
-                shell.write("logcat -d")
-                logs = read_shell(shell, 1)
-                logs = cutoff_system_print(logs)
-                service_detect_result[service.name] = logs #20160317
-                self.stdout.write("+++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (service.name, logs))
-                self.stdout.flush()
-                shell.write("logcat -c")
-                
+                    shell.write("logcat -d")
+                    logs = read_shell(shell, 1)
+                    logs = cutoff_system_print(logs)
+                    service_detect_result[service.name] = logs #20160317
+                    #self.stdout.write("+++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (service.name, logs))
+                    output = "+++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (service.name, logs)
+                    self.stdout.write(output)
+                    file_detect_result.write(output)
+                    self.stdout.flush()
+                    shell.write("logcat -c")
+
             #20160317
             service_detect_result = str(service_detect_result)
             #self.stdout.write(service_detect_result)
-                
+
         else:
             self.stdout.write("package could not be None\n'")
 
