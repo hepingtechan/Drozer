@@ -188,6 +188,9 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
         update the first record. that is the index of 'rows' is 1
         """
         rows = self.getResultSet(cursor)
+        if len(rows) <= 1:
+            self.stdout.write('    Nothing to update!\n')
+            return
         row1_original = rows[1]
 
         #row_to_update = []
