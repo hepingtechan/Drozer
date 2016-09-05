@@ -41,17 +41,17 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
                     self.stdout.write("    Accessible Tables From URI: %s \n" % uri)
                     if(str(uri).startswith("content://media/internal/audio/")):
                         pass
-                    
+
                     """
                     CRUD Detection added by hxf 20151127
                     """
                     self.update_record(cursor, uri)
-                    
+
                     cursor = self.contentResolver().query(uri)
                     self.insert_record(cursor, uri)
                 else:
                     self.stdout.write("    Accesible but Query Result is None!!!\n")
-                    
+
         else:
             self.stdout.write("packagename could not be None!\n ")
 
@@ -120,21 +120,21 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
         data_int = 13991625
         data_float = 526.00856
         data_string = "Data__DrozerTest_llf"
-        
+
         self.stdout.write("    Inserting data...\n")
-    
+
         values = self.new("android.content.ContentValues")
-    
+
         type_blob = self.klass("android.database.Cursor").FIELD_TYPE_BLOB
         type_int = self.klass("android.database.Cursor").FIELD_TYPE_INTEGER
         type_float = self.klass("android.database.Cursor").FIELD_TYPE_FLOAT
         type_none = self.klass("android.database.Cursor").FIELD_TYPE_NULL
         type_string = self.klass("android.database.Cursor").FIELD_TYPE_STRING
-    
+
         if cursor != None:
-            columns = cursor.getColumnNames() 
+            columns = cursor.getColumnNames()
             cursor.moveToFirst()
-            
+
             if cursor.isAfterLast() == False:
                 for i in xrange(1, len(columns)):
                     try:
@@ -145,62 +145,65 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
                                 values.put(str(columns[i]), data_float)
                             else:
                                 values.put(str(columns[i]), data_string)
-                                        
+
                     except ReflectionException as e:
                         self.stdout.write("    Insert data Error:" + e.message + "\n\n")
                         raise
-                    
+
         try:
             insert = self.contentResolver().insert(uri, values)
             if(str(insert) != "null"):
                 self.stdout.write("    Inserted successfully!!!\n")
                 rows = self.getResultSet(self.contentResolver().query(uri))
-                self.file_table(rows)   
+                self.file_table(rows)
             else:
-                self.stdout.write("    Inserted Failed!!!\n")       
+                self.stdout.write("    Inserted Failed!!!\n")
         except ReflectionException as e:
             self.stdout.write("    Insert data Error:" + e.message + "\n\n")
             return
-        
+
         """
         Delete Detection
         """
         cursor = self.contentResolver().query(uri)
         self.delete_record(cursor, uri)
-        
+
         rows = self.getResultSet(self.contentResolver().query(uri))
         self.file_table(rows)
-        
-        
+
+
     def update_record(self, cursor, uri):
         """
         update the first record. that is the index of 'rows' is 1
         """
         rows = self.getResultSet(cursor)
+        if len(rows) <= 1:
+            self.stdout.write('    Nothing to update!\n')
+            return
         row1_original = rows[1]
-            
+
         #row_to_update = []
         data_int = 13991625
         data_float = 526.00856
         data_string = "Data__DrozerTest_llf"
-        
+
         self.stdout.write("    Updating the first record...\n")
-        
+
         values_to_update = self.new("android.content.ContentValues")
         values_row1_original = self.new("android.content.ContentValues")
-        
+
         type_blob = self.klass("android.database.Cursor").FIELD_TYPE_BLOB
         type_int = self.klass("android.database.Cursor").FIELD_TYPE_INTEGER
         type_float = self.klass("android.database.Cursor").FIELD_TYPE_FLOAT
         type_none = self.klass("android.database.Cursor").FIELD_TYPE_NULL
         type_string = self.klass("android.database.Cursor").FIELD_TYPE_STRING
-        
+
         if cursor != None:
             columns = cursor.getColumnNames()
             cursor.moveToFirst()
             for i in xrange(1, len(columns)):
-                
-                try:     
+
+                try:
                     if cursor.getType(i) == type_int:
                         values_to_update.put(str(columns[i]), data_int)
                     else:
@@ -208,10 +211,10 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
                             values_to_update.put(str(columns[i]), data_float)
                         else:
                             values_to_update.put(str(columns[i]), data_string)
-                                    
+
                 except ReflectionException as e:
                     self.stdout.write("    Update Error:" + e.message + "\n\n")
-                    
+
             try:
                 """
                 update the first record row1!
@@ -221,43 +224,43 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
                     self.stdout.write("    Update successfully!!!\n")
                     rows = self.getResultSet(self.contentResolver().query(uri))
                     self.file_table(rows)
-                
+
                 """
-                update the row1 back to original state! 
+                update the row1 back to original state!
                 assign the row1_original to values_row1_original
-                """    
+                """
                 self.stdout.write("    Updating the first record back to the original state!!!\n")
-                
+
                 for j in xrange(1, len(columns)):
                     values_row1_original.put(str(columns[j]), row1_original[j])
-                    
+
                 update = self.contentResolver().update(uri, values_row1_original, columns[0] + "=?", str(row1_original[0]).split("\n"))
                 if update > 0:
                     self.stdout.write("    Update successfully!!!\n")
                     rows = self.getResultSet(self.contentResolver().query(uri))
                     self.file_table(rows)
-                
+
             except ReflectionException as e:
                 self.stdout.write("    Update Error:" + e.message + "\n\n")
-    
-    
+
+
     def delete_record(self, cursor, uri):
         data_int = 13991625
         data_float = 526.00856
         data_string = "Data__DrozerTest_llf"
-        
+
         self.stdout.write("    Deleting data...\n")
         delete = "delete"
-        
+
         type_blob = self.klass("android.database.Cursor").FIELD_TYPE_BLOB
         type_int = self.klass("android.database.Cursor").FIELD_TYPE_INTEGER
         type_float = self.klass("android.database.Cursor").FIELD_TYPE_FLOAT
         type_none = self.klass("android.database.Cursor").FIELD_TYPE_NULL
         type_string = self.klass("android.database.Cursor").FIELD_TYPE_STRING
-        
+
         where = ""
         where_args = []
-        
+
         if cursor != None:
             columns = cursor.getColumnNames()
             cursor.moveToFirst()
@@ -272,23 +275,23 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
                                 where_args.append(data_float)
                             else:
                                 where_args.append(data_string)
-                                
+
                         if i != len(columns)-1:
                             where = where + " and "
-                                
+
                     delete = self.contentResolver().delete(uri, where, where_args)
                 except ReflectionException as e:
                     self.stdout.write("    Delete Error:" + e.message + "\n")
                     raise
                     return
-                
+
         if str(delete) != "delete":
             self.stdout.write("    Deleted successfully!!!\n")
         else:
             self.stdout.write("    Noting can be deleted!!!\n")
-            
-            
-                          
+
+
+
     def getResultSet(self, cursor):
         """
         Get a result set from a database cursor, as a 2D array.
@@ -300,7 +303,7 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
         float_type=self.klass("android.database.Cursor").FIELD_TYPE_FLOAT
         if cursor != None:
             columns = cursor.getColumnNames()
-            
+
             rows.append(columns)
             #self.stdout.write("Record counts:"+''.join(len(columns)))
             cursor.moveToFirst()
@@ -311,16 +314,16 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
                     try:
                         if(cursor.getType(i) == blob_type):
                             row.append("%s (Base64-encoded)" % (cursor.getBlob(i).base64_encode()))
-                                    
+
                         else:
                             if(cursor.getType(i)==int_type):
                                 row.append(str(cursor.getInt(i)))
                             else:
                                 if(cursor.getType(i)==float_type):
                                     row.append(str(cursor.getFloat(i)))
-                                else:   
+                                else:
                                     row.append(cursor.getString(i))
-                                    
+
                     except ReflectionException as e:
                         if e.message.startswith("getType"):
                             try:
@@ -340,8 +343,8 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
             return rows
         else:
             return None
-    
-    
+
+
     def file_table(self, rows, show_headers=True, vertical=False):
         """
         Print tabular data to files, given an array of rows, each containing
@@ -354,8 +357,8 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
             self.file_table_vertical(rows)
         else:
             self.file_table_horizontal(rows, show_headers)
-              
-        
+
+
     def file_table_horizontal(self, rows, show_headers=True):
         """
         Print tabular data in a traditional, horizontal format:
@@ -380,8 +383,8 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
                 self.stdout.write((" {:<" + str(widths[i]) + "} |").format(r[i]))
             self.stdout.write("\n")
         self.stdout.write("\n")
-        
-        
+
+
     def file_table_vertical(self, rows):
         """
         Print tabular data in a vertical format, which is easier to read with
