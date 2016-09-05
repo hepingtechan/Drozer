@@ -25,9 +25,9 @@ def auto_install_app(apk_name_list):
                 print 'apk name : %s' % apk_name
                 ret = os.popen('adb install ' + apk_name).read()
                 if 'Failure' in ret:
-                    print 'Failure'
+                    print ret
                     count_install_failed += 1
-                    file_install_log.write('No %d : %s\n' % (count_install_failed, apk_name))
+                    file_install_log.write('No.%d : %s\n%s\n' % (count_install_failed, apk_name, ret))
                 else:
                     print 'Success'
                     pass
