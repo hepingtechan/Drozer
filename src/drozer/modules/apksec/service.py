@@ -69,7 +69,7 @@ class Detect(Module, common.Filters, common.PackageManager, common.Provider, com
                         count = count + 1
                         self.stdout.write("  service No.%d: %s\n" % (count, service.name))
                         output_file.write("  service No.%d: %s\n" % (count, service.name))
-                        output_pure_file.write(service.name)
+                        output_pure_file.write(service.name+'\n')
                         self.stdout.write("+++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (service.name, logs))
                         output_file.write("+++++++++++++++++++++++++++++++++++++++++LOGS of %s++++++++++++++++++++++++++++++++++++++++\n%s\n" % (service.name, logs))
                     self.stdout.flush()
